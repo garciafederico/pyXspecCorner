@@ -27,10 +27,10 @@ or alternatively
 ```
 to get a faster version based on `tkinter`.
 
-**Optional:** The user can also provide the burn in and/or number of samples to use for plotting purposes, and plotting parameters like the number of bins and number format.
+**Optional:** The user can also provide the burn in and/or number of samples to use for plotting purposes, and plotting parameters like the number of bins, number format, and label padding
 
 ```
-   python pyXspecCorner.py 'MCMC_chain.fits' --burn 300 --samples 1000 --bins 50 --format .3f
+   python pyXspecCorner.py 'MCMC_chain.fits' --burn 300 --samples 1000 --bins 50 --format .3f --labelpad 0.1
 ```
 
 **Usage help:** The user can get additional `description/help` using the argparse helper.

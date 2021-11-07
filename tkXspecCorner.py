@@ -14,6 +14,9 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 plt.rc('xtick',labelsize='xx-small')
 plt.rc('ytick',labelsize='xx-small')
 
+plt.rcParams["font.family"] = "DejaVu Serif"
+plt.rcParams["mathtext.fontset"] = "dejavuserif"
+plt.rc('text', usetex=False)
 
 def UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selectedAltNames):
     '''Create and Update the CornerPlot based on the selectedTitles,
@@ -24,14 +27,14 @@ def UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selecte
                   labels=selectedAltNames, label_kwargs={"fontsize": 'xx-small'},
                   titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": 'xx-small'},
                   plot_datapoints=False, plot_density=True, plot_contours=contours, smooth=True,
-                  quantiles=(0.14, 0.84), use_math_text=True, bins=bins)
+                  quantiles=(0.14, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
     else:
         corner.corner(df, var_names=selectedTitles.values, filter_vars="like", fig=figcorner,
                   labels=[None for val in selectedTitles.values], label_kwargs={"fontsize": 'xx-small'},
                   titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": 'xx-small'},
                   plot_datapoints=False, plot_density=True, plot_contours=contours, smooth=True,
-                  quantiles=(0.14, 0.84), use_math_text=True, bins=bins)
-   
+                  quantiles=(0.14, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
+
     figcorner.canvas.draw()
     return
 
@@ -49,11 +52,11 @@ def UpdateAll():
 
     UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selectedAltNames)
     return
-    
+
 
 if __name__ == '__main__':
     '''pyXspecCorner is a CornerPlotter for XSPEC MCMC Chains saved to FITS files'''
-    
+
     # Organize the Parser to get Chain file, burn-in and samples to be used.
     parser = argparse.ArgumentParser(prog='pyXspecCorner',
                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -64,6 +67,7 @@ if __name__ == '__main__':
     parser.add_argument("--samples",help="Samples used in CornerPlot", type=int, default=1000, nargs='?')
     parser.add_argument("--bins",help="Number of Bins used in CornerPlot", type=int, default=30, nargs='?')
     parser.add_argument("--format",help="Numeric format of Titles and XYlabels in CornerPlot", type=str, default='.2f', nargs='?')
+    parser.add_argument("--labelpad",help="Fractional label padding for Titles and XYlabels", type=float, default=0.05, nargs='?')
     args = parser.parse_args()
 
     # Use the parsed arguments to get the selected data from the Chain FITS file
@@ -72,10 +76,11 @@ if __name__ == '__main__':
     Samples = int(args.samples)
     bins = int(args.bins)
     title_fmt = args.format
+    labelpad = args.labelpad
 
     chain = fits.open(chainName)
     nFields = chain[1].header['TFIELDS']
-    ChainLength = chain[1].header['NAXIS2']    
+    ChainLength = chain[1].header['NAXIS2']
 
     idx = np.random.randint(low=int(min(BurnIn,ChainLength//2)), high=ChainLength, size=int(min(Samples,ChainLength)))
 
@@ -90,7 +95,7 @@ if __name__ == '__main__':
             tunit = chain[1].header['TUNIT{}'.format(i+1)]
         except:
             tunit = ''
-        
+
         try:
             tname, tnum = ttype.split('__')
         except:
@@ -103,7 +108,7 @@ if __name__ == '__main__':
             title = '{}. {} [{}]'.format(tnum,tname,tunit)
         else:
             title = '{}. {}'.format(tnum,tname)
-            
+
         titles.append(title)
         df[title] = chain[1].data[ttype][idx]
 
@@ -127,29 +132,28 @@ if __name__ == '__main__':
     # Create the two interactive figures and fill them: Buttons and CornerPlot
     figcorner = plt.Figure(figsize=(6,6), dpi=120)
 
-    app = tk.Tk() 
-#    app.geometry('1350x950')
+    app = tk.Tk()
     app.title('tkXspecCorner    by Federico Garcia')
 
     ParamTitle = tk.Label(app, text='Parameters', font="sans 12 bold")
     ParamTitle.grid(row=0, column=1, columnspan=2, rowspan=1)
 
     selVariables, chkButtons, textVariables, txtButtons = [], [], [], []
-    for i, Title in enumerate(Titles):            
+    for i, Title in enumerate(Titles):
         selVariables.append(tk.BooleanVar())
         chkButton = tk.Checkbutton(app, text=Titles[i], var=selVariables[i])
-        chkButtons.append(chkButton) 
+        chkButtons.append(chkButton)
         chkButton.grid(row=i+1, column=1)
-        
+
         textVariables.append(tk.StringVar())
         textVariables[i].set(Titles[i])
         txtButton = tk.Entry(app, text=Titles[i], textvariable=textVariables[i])
         txtButtons.append(txtButton)
         txtButton.grid(row=i+1, column=2)
- 
+
     updateButton = tk.Button(app, text='Update Corner Plot', font="sans 10 bold", command=UpdateAll)
     updateButton.grid(row=len(Titles)+1, column=1, columnspan=2, rowspan=1)
-    
+
     canvas = FigureCanvasTkAgg(figcorner, app)
     canvas.get_tk_widget().grid(row=0,column=4,columnspan=10,rowspan=len(Titles)+1)
     toolbar = NavigationToolbar2Tk(canvas, app, pack_toolbar=False)
@@ -157,6 +161,3 @@ if __name__ == '__main__':
 
     UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selectedAltNames)
     app.mainloop()
-
-
-

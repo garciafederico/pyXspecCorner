@@ -12,6 +12,9 @@ import corner
 plt.rc('xtick',labelsize='xx-small')
 plt.rc('ytick',labelsize='xx-small')
 
+plt.rcParams["font.family"] = "DejaVu Serif"
+plt.rcParams["mathtext.fontset"] = "dejavuserif"
+plt.rc('text', usetex=False)
 
 def UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selectedAltNames):
     '''Create and Update the CornerPlot based on the selectedTitles,
@@ -22,14 +25,14 @@ def UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selecte
                   labels=selectedAltNames, label_kwargs={"fontsize": 'xx-small'},
                   titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": 'xx-small'},
                   plot_datapoints=False, plot_density=True, plot_contours=contours, smooth=True,
-                  quantiles=(0.14, 0.84), use_math_text=True, bins=bins)
+                  quantiles=(0.14, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
     else:
         corner.corner(df, var_names=selectedTitles.values, filter_vars="like", fig=figcorner,
                   labels=[None for val in selectedTitles.values], label_kwargs={"fontsize": 'xx-small'},
                   titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": 'xx-small'},
                   plot_datapoints=False, plot_density=True, plot_contours=contours, smooth=True,
-                  quantiles=(0.14, 0.84), use_math_text=True, bins=bins)
-   
+                  quantiles=(0.14, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
+
     figcorner.canvas.draw()
     return
 
@@ -47,7 +50,7 @@ def chTextBoxesFunc(a):
     selectedAltNames = AltNames[selected]
 
     UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selectedAltNames)
-    return 
+    return
 
 
 def chButtonsFunc(a):
@@ -64,12 +67,12 @@ def chButtonsFunc(a):
     selectedAltNames = AltNames[selected]
 
     UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selectedAltNames)
-    return 
-    
+    return
+
 
 if __name__ == '__main__':
     '''pyXspecCorner is a CornerPlotter for XSPEC MCMC Chains saved to FITS files'''
-    
+
     # Organize the Parser to get Chain file, burn-in and samples to be used.
     parser = argparse.ArgumentParser(prog='pyXspecCorner',
                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -80,6 +83,7 @@ if __name__ == '__main__':
     parser.add_argument("--samples",help="Samples used in CornerPlot", type=int, default=1000, nargs='?')
     parser.add_argument("--bins",help="Number of Bins used in CornerPlot", type=int, default=30, nargs='?')
     parser.add_argument("--format",help="Numeric format of Titles and XYlabels in CornerPlot", type=str, default='.2f', nargs='?')
+    parser.add_argument("--labelpad",help="Fractional label padding for Titles and XYlabels", type=float, default=0.05, nargs='?')
     args = parser.parse_args()
 
     # Use the parsed arguments to get the selected data from the Chain FITS file
@@ -88,10 +92,11 @@ if __name__ == '__main__':
     Samples = int(args.samples)
     bins = int(args.bins)
     title_fmt = args.format
+    labelpad = args.labelpad
 
     chain = fits.open(chainName)
     nFields = chain[1].header['TFIELDS']
-    ChainLength = chain[1].header['NAXIS2']    
+    ChainLength = chain[1].header['NAXIS2']
 
     idx = np.random.randint(low=int(min(BurnIn,ChainLength//2)), high=ChainLength, size=int(min(Samples,ChainLength)))
 
@@ -106,7 +111,7 @@ if __name__ == '__main__':
             tunit = chain[1].header['TUNIT{}'.format(i+1)]
         except:
             tunit = ''
-        
+
         try:
             tname, tnum = ttype.split('__')
         except:
@@ -119,7 +124,7 @@ if __name__ == '__main__':
             title = '{}. {} [{}]'.format(tnum,tname,tunit)
         else:
             title = '{}. {}'.format(tnum,tname)
-            
+
         titles.append(title)
         df[title] = chain[1].data[ttype][idx]
 
@@ -149,7 +154,7 @@ if __name__ == '__main__':
     chButtons = CheckButtons(axbuttons, Titles, actives=selected)
     chButtons.on_clicked(chButtonsFunc)
     figbuttons.suptitle('Parameters')
-    
+
     w = 0.9/len(titles)
     chTextBoxes = []
     for i, AltName in enumerate(AltNames):
@@ -161,7 +166,4 @@ if __name__ == '__main__':
 
     UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selectedAltNames)
 
-    plt.tight_layout()
     plt.show()
-
-
