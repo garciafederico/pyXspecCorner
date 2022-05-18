@@ -63,8 +63,8 @@ if __name__ == '__main__':
                                     description='Make interactive CornerPlots based on XSPEC MCMC Chain FITS files.')
 
     parser.add_argument("chain", help="Path to XSPEC Chain FITS file", type=str, default='chain.fits')
-    parser.add_argument("--burn", help="Samples to Burn In", type=int, default=100, nargs='?')
-    parser.add_argument("--samples",help="Samples used in CornerPlot", type=int, default=1000, nargs='?')
+    parser.add_argument("--burn", help="Samples to Burn In", type=int, default=0, nargs='?')
+    parser.add_argument("--samples",help="Samples used in CornerPlot (-1 to use all)", type=int, default=-1, nargs='?')
     parser.add_argument("--bins",help="Number of Bins used in CornerPlot", type=int, default=30, nargs='?')
     parser.add_argument("--format",help="Numeric format of Titles and XYlabels in CornerPlot", type=str, default='.2f', nargs='?')
     parser.add_argument("--labelpad",help="Fractional label padding for Titles and XYlabels", type=float, default=0.05, nargs='?')
@@ -79,10 +79,25 @@ if __name__ == '__main__':
     labelpad = args.labelpad
 
     chain = fits.open(chainName)
-    nFields = chain[1].header['TFIELDS']
-    ChainLength = chain[1].header['NAXIS2']
+    nFields = int(chain[1].header['TFIELDS'])
+    ChainLength = int(chain[1].header['NAXIS2'])
 
-    idx = np.random.randint(low=int(min(BurnIn,ChainLength//2)), high=ChainLength, size=int(min(Samples,ChainLength)))
+    if Samples<0:
+        Samples = ChainLength
+        idx = np.arange(min(BurnIn,0), ChainLength)
+    else:
+        idx = np.random.randint(low=min(BurnIn,0), high=ChainLength, size=Samples)
+
+    print()
+    print('===============================================')
+    print(' Loading Chain: {}'.format(chainName))
+    print(' Chain Length: {}'.format(ChainLength))
+    print(' Number of Fields: {}'.format(nFields))
+    print('===============================================')
+    print(' Burning in {} samples'.format(BurnIn))
+    print(' Using {} samples for plotting purposes'.format(Samples))
+    print('===============================================')
+    print()
 
     # Create the DataFrame for the CornerPlot and fill it with the Data and Titles.
     df = pd.DataFrame()
@@ -130,7 +145,7 @@ if __name__ == '__main__':
     selectedAltNames = AltNames[selected]
 
     # Create the two interactive figures and fill them: Buttons and CornerPlot
-    figcorner = plt.Figure(figsize=(6,6), dpi=120)
+    figcorner = plt.Figure(figsize=(6,6), dpi=140)
 
     app = tk.Tk()
     app.title('tkXspecCorner    by Federico Garcia')
