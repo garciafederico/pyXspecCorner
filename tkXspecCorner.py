@@ -27,13 +27,13 @@ def UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selecte
                   labels=selectedAltNames, label_kwargs={"fontsize": 'xx-small'},
                   titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": 'xx-small'},
                   plot_datapoints=False, plot_density=True, plot_contours=contours, smooth=True,
-                  quantiles=(0.14, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
+                  quantiles=(0.16, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
     else:
         corner.corner(df, var_names=selectedTitles.values, filter_vars="like", fig=figcorner,
                   labels=[None for val in selectedTitles.values], label_kwargs={"fontsize": 'xx-small'},
                   titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": 'xx-small'},
                   plot_datapoints=False, plot_density=True, plot_contours=contours, smooth=True,
-                  quantiles=(0.14, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
+                  quantiles=(0.16, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
 
     figcorner.canvas.draw()
     return
