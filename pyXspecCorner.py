@@ -33,7 +33,8 @@ def UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selecte
                   plot_datapoints=False, plot_density=True, plot_contours=contours, smooth=True,
                   quantiles=(0.16, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
 
-    figcorner.canvas.draw()
+    figcorner.canvas.draw_idle()
+    figbuttons.canvas.draw_idle()
     return
 
 
@@ -180,5 +181,4 @@ if __name__ == '__main__':
             chTextBoxes.append(text_box)
 
     UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selectedAltNames)
-
     plt.show()
