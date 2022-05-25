@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
 import pandas as pd
-# import arviz
+import arviz
 import matplotlib.pyplot as plt
 from matplotlib.widgets import CheckButtons, TextBox
 from astropy.io import fits
