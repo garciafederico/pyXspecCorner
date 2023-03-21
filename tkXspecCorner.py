@@ -10,13 +10,10 @@ import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 
-# Use very very small fonts...
-plt.rc('xtick',labelsize='xx-small')
-plt.rc('ytick',labelsize='xx-small')
-
 plt.rcParams["font.family"] = "DejaVu Serif"
 plt.rcParams["mathtext.fontset"] = "dejavuserif"
 plt.rc('text', usetex=False)
+
 
 def UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selectedAltNames):
     '''Create and Update the CornerPlot based on the selectedTitles,
@@ -24,14 +21,14 @@ def UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selecte
     figcorner.clear()
     if showXYlabels:
         corner.corner(df, var_names=selectedTitles.values, filter_vars="like", fig=figcorner,
-                  labels=selectedAltNames, label_kwargs={"fontsize": 'xx-small'},
-                  titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": 'xx-small'},
+                  labels=selectedAltNames, label_kwargs={"fontsize": fontSize},
+                  titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": fontSize},
                   plot_datapoints=False, plot_density=True, plot_contours=contours, smooth=True,
                   quantiles=(0.16, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
     else:
         corner.corner(df, var_names=selectedTitles.values, filter_vars="like", fig=figcorner,
-                  labels=[None for val in selectedTitles.values], label_kwargs={"fontsize": 'xx-small'},
-                  titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": 'xx-small'},
+                  labels=[None for val in selectedTitles.values], label_kwargs={"fontsize": fontSize},
+                  titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": fontSize},
                   plot_datapoints=False, plot_density=True, plot_contours=contours, smooth=True,
                   quantiles=(0.16, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
 
@@ -68,6 +65,7 @@ if __name__ == '__main__':
     parser.add_argument("--bins",help="Number of Bins used in CornerPlot", type=int, default=30, nargs='?')
     parser.add_argument("--format",help="Numeric format of Titles and XYlabels in CornerPlot", type=str, default='.2f', nargs='?')
     parser.add_argument("--labelpad",help="Fractional label padding for Titles and XYlabels", type=float, default=0.05, nargs='?')
+    parser.add_argument("--fontSize",help="Font Size for Titles, XYTicks and XYlabels", type=str, default='xx-small', nargs='?')
     args = parser.parse_args()
 
     # Use the parsed arguments to get the selected data from the Chain FITS file
@@ -77,6 +75,11 @@ if __name__ == '__main__':
     bins = int(args.bins)
     title_fmt = args.format
     labelpad = args.labelpad
+    fontSize = args.fontSize
+    
+    # Set fonts...
+    plt.rc('xtick',labelsize=fontSize)
+    plt.rc('ytick',labelsize=fontSize)
 
     chain = fits.open(chainName)
     nFields = int(chain[1].header['TFIELDS'])
