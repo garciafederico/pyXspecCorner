@@ -91,7 +91,7 @@ if __name__ == '__main__':
     bins = int(args.bins)
     title_fmt = args.format
     labelpad = args.labelpad
-    fontSize = args.fontSize    
+    fontSize = args.fontSize
 
     # Set fonts...
     plt.rc('xtick',labelsize=fontSize)
@@ -131,14 +131,27 @@ if __name__ == '__main__':
             tunit = ''
 
         try:
-            tname, tnum = ttype.split('__')
+            tt = ttype.split('__')
+            if len(tt) == 3:
+                tname, tmodel, tnum = tt
+            elif len(tt) == 2:
+                tname, tnum = tt
+                tmodel = ''
+            else:
+                tnum = str(int(tnum)+1)
+                tname = 'Chi-Squared'
+                tunit = ''
+                tmodel = ''
         except:
-            tnum = str(int(tnum)+1)
-            tname = 'Chi-Squared'
+            tmodel = ''
             tunit = ''
 
         ttypes.append(ttype)
-        if tunit:
+        if tunit and tmodel:
+            title = '{} {}. {} [{}]'.format(tmodel,tnum,tname,tunit)
+        elif tmodel:
+            title = '{} {}. {}'.format(tmodel,tnum,tname)
+        elif tunit:
             title = '{}. {} [{}]'.format(tnum,tname,tunit)
         else:
             title = '{}. {}'.format(tnum,tname)
