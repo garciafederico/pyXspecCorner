@@ -1,7 +1,8 @@
 import argparse
 import numpy as np
 import pandas as pd
-import arviz
+import arviz as az
+import xarray as xr
 import matplotlib.pyplot as plt
 from matplotlib.widgets import CheckButtons, TextBox
 from astropy.io import fits
@@ -20,13 +21,13 @@ def UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selecte
        and plotting options like Contours, Titles and Labels'''
     figcorner.clear()
     if showXYlabels:
-        corner.corner(df, var_names=selectedTitles.values, filter_vars="like", fig=figcorner,
+        corner.corner(dataset, var_names=selectedTitles.values, filter_vars="like", fig=figcorner,
                   labels=selectedAltNames, label_kwargs={"fontsize": fontSize},
                   titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": fontSize},
                   plot_datapoints=False, plot_density=True, plot_contours=contours, smooth=True,
                   quantiles=(0.16, 0.50, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
     else:
-        corner.corner(df, var_names=selectedTitles.values, filter_vars="like", fig=figcorner,
+        corner.corner(dataset, var_names=selectedTitles.values, filter_vars="like", fig=figcorner,
                   labels=[None for val in selectedTitles.values], label_kwargs={"fontsize": fontSize},
                   titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": fontSize},
                   plot_datapoints=False, plot_density=True, plot_contours=contours, smooth=True,
@@ -142,6 +143,27 @@ if __name__ == '__main__':
 
         titles.append(title)
         df[title] = chain[1].data[ttype][idx]
+
+    df["chain"] = 0
+    df["draw"] = np.arange(len(df), dtype=int)
+    df = df.set_index(["chain", "draw"])
+    xdata = xr.Dataset.from_dataframe(df)
+    dataset = az.InferenceData(posterior=xdata)
+
+    func_dict = {
+    "median": lambda x: np.percentile(x, 50),
+    "5%": lambda x: np.percentile(x, 5),
+    "16%": lambda x: np.percentile(x, 16),
+    "84%": lambda x: np.percentile(x, 84),
+    "95%": lambda x: np.percentile(x, 95),
+    }
+
+    print('Summary statistics based on selected posterior samples:')
+    print()
+    print(az.summary(dataset, group='posterior', stat_funcs=func_dict, extend=False))
+    print()
+    print('Building interactive plot...')
+    print()
 
     # Add some Plotting abilities
     titles.append('Draw Contours')
