@@ -14,6 +14,8 @@ The program will open two matplotlib windows, one with a corner plot and another
 
 The three last CheckButtons in the list allows to turn on and off the smoothed 2D `contours` in the [Corner Plot](https://corner.readthedocs.io/), and to play with `Titles` and `XYlabels` in the plot.
 
+The program also displays a summary with the main statistics of the available parameters in the chain file using the samples selected by the user.
+
 ### Usage:
 
 **Basic:** The user must provide the `path/name` to the MCMC XSPEC chain FITS file.
