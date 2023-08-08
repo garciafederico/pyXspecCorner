@@ -15,6 +15,29 @@ plt.rcParams["font.family"] = "DejaVu Serif"
 plt.rcParams["mathtext.fontset"] = "dejavuserif"
 plt.rc('text', usetex=False)
 
+apptitle = 'tkXspecCorner v2023/08/08 by Federico Garcia'
+
+#Prepare the plot scheme
+plt.rcParams['lines.linewidth'] = 1.5
+plt.rcParams['axes.linewidth'] = 0.8
+plt.rcParams['axes.axisbelow'] = False
+plt.rcParams['xtick.top'] = True
+plt.rcParams['xtick.bottom'] = True
+plt.rcParams['ytick.right'] = True
+plt.rcParams['ytick.left'] = True
+plt.rcParams['xtick.direction'] = 'in'
+plt.rcParams['ytick.direction'] = 'in'
+plt.rcParams['xtick.major.width'] = 0.8
+plt.rcParams['ytick.major.width'] = 0.8
+plt.rcParams['xtick.minor.width'] = 0.8
+plt.rcParams['ytick.minor.width'] = 0.8
+plt.rcParams['xtick.minor.visible'] = True
+plt.rcParams['ytick.minor.visible'] = True
+plt.rcParams['xtick.major.size'] = 3
+plt.rcParams['ytick.major.size'] = 3
+plt.rcParams['xtick.minor.size'] = 1.5
+plt.rcParams['ytick.minor.size'] = 1.5
+
 
 def UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selectedAltNames):
     '''Create and Update the CornerPlot based on the selectedTitles,
@@ -25,13 +48,15 @@ def UpdateCornerPlot(selectedTitles, contours, showTitles, showXYlabels, selecte
                   labels=selectedAltNames, label_kwargs={"fontsize": fontSize},
                   titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": fontSize},
                   plot_datapoints=False, plot_density=True, plot_contours=contours, smooth=True,
-                  quantiles=(0.16, 0.50, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
+                  quantiles=(0.16, 0.50, 0.84), use_math_text=True, bins=bins, labelpad=labelpad,
+                  hist_kwargs={"fill": True, "color": "gray"})
     else:
         corner.corner(dataset, var_names=selectedTitles.values, filter_vars="like", fig=figcorner,
                   labels=[None for val in selectedTitles.values], label_kwargs={"fontsize": fontSize},
                   titles=selectedAltNames, show_titles=showTitles, title_fmt=title_fmt, title_kwargs={"fontsize": fontSize},
                   plot_datapoints=False, plot_density=True, plot_contours=contours, smooth=True,
-                  quantiles=(0.16, 0.50, 0.84), use_math_text=True, bins=bins, labelpad=labelpad)
+                  quantiles=(0.16, 0.50, 0.84), use_math_text=True, bins=bins, labelpad=labelpad,
+                  hist_kwargs={"fill": True, "color": "gray"})
 
     figcorner.canvas.draw()
     return
@@ -78,9 +103,10 @@ if __name__ == '__main__':
     labelpad = args.labelpad
     fontSize = args.fontSize
 
-    # Set fonts...
+    # Set dynamic plotting styles
     plt.rc('xtick',labelsize=fontSize)
     plt.rc('ytick',labelsize=fontSize)
+    plt.rc('axes',labelsize=fontSize)
 
     chain = fits.open(chainName)
     nFields = int(chain[1].header['TFIELDS'])
@@ -186,7 +212,7 @@ if __name__ == '__main__':
     figcorner = plt.Figure(figsize=(6,6), dpi=140)
 
     app = tk.Tk()
-    app.title('tkXspecCorner    by Federico Garcia')
+    app.title(apptitle)
 
     ParamTitle = tk.Label(app, text='Parameters', font="sans 12 bold")
     ParamTitle.grid(row=0, column=1, columnspan=2, rowspan=1)
